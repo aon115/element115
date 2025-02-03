@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Telegram Mini App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #262525;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #40a3ff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <button id="helloButton">Collect Element 115</button>
+  <script>
+    // Initialize the Telegram Web App
+    const tg = window.Telegram.WebApp;
+
+    // Add a click event to the button
+    const button = document.getElementById('helloButton');
+    button.addEventListener('click', () => {
+      alert('+1');
+    });
+
+    // Expand the app to full screen (optional)
+    tg.expand();
+  </script>
+</body>
+</html>
