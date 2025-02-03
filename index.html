@@ -1,48 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Telegram Mini App</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #262525;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: #40a3ff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pill Game</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #121212;
+            color: white;
+            padding: 20px;
+        }
+        .pill-button {
+            font-size: 20px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .red-pill { background-color: red; color: white; }
+        .blue-pill { background-color: blue; color: white; }
+        .disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
 </head>
 <body>
-  <button id="helloButton">Collect Element 115</button>
-  <script>
-    // Initialize the Telegram Web App
-    const tg = window.Telegram.WebApp;
+    <h1>Pill Game</h1>
+    <p>Choose wisely. The team with **fewer** players wins.</p>
+    <p><b>Players chosen today:</b> <span id="count">0</span></p>
+    <p><b>Time Left:</b> <span id="timer">00:00:00</span></p>
+    <button class="pill-button red-pill" id="red-pill">Red Pill 🔴</button>
+    <button class="pill-button blue-pill" id="blue-pill">Blue Pill 🔵</button>
+    <p id="status"></p>
 
-    // Add a click event to the button
-    const button = document.getElementById('helloButton');
-    button.addEventListener('click', () => {
-      alert('+1');
-    });
+    <script>
+        const redPillBtn = document.getElementById("red-pill");
+        const bluePillBtn = document.getElementById("blue-pill");
+        const countDisplay = document.getElementById("count");
+        const statusDisplay = document.getElementById("status");
+        const timerDisplay = document.getElementById("timer");
+        
+        let choice = localStorage.getItem("pillChoice");
+        let totalChoices = parseInt(localStorage.getItem("totalChoices")) || 0;
+        let resetTime = localStorage.getItem("resetTime") || Date.now() + 24 * 60 * 60 * 1000;
+        
+        function updateCount() {
+            countDisplay.textContent = totalChoices;
+        }
+        
+        function disableButtons() {
+            redPillBtn.classList.add("disabled");
+            bluePillBtn.classList.add("disabled");
+            redPillBtn.disabled = true;
+            bluePillBtn.disabled = true;
+        }
 
-    // Expand the app to full screen (optional)
-    tg.expand();
-  </script>
+        function enableButtons() {
+            redPillBtn.classList.remove("disabled");
+            bluePillBtn.classList.remove("disabled");
+            redPillBtn.disabled = false;
+            bluePillBtn.disabled = false;
+        }
+
+        function choosePill(pill) {
+            if (!choice) {
+                choice = pill;
+                localStorage.setItem("pillChoice", pill);
+                totalChoices++;
+                localStorage.setItem("totalChoices", totalChoices);
+                updateCount();
+                disableButtons();
+                statusDisplay.textContent = `You chose: ${pill.toUpperCase()}! Locked in.`;
+            }
+        }
+
+        function startCountdown() {
+            const interval = setInterval(() => {
+                let now = Date.now();
+                let timeLeft = resetTime - now;
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    localStorage.removeItem("pillChoice");
+                    localStorage.setItem("totalChoices", 0);
+                    localStorage.setItem("resetTime", Date.now() + 24 * 60 * 60 * 1000);
+                    location.reload();
+                } else {
+                    let hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                    let minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    let seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                    timerDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+                }
+            }, 1000);
+        }
+
+        redPillBtn.addEventListener("click", () => choosePill("red"));
+        bluePillBtn.addEventListener("click", () => choosePill("blue"));
+        
+        updateCount();
+        startCountdown();
+        if (choice) {
+            disableButtons();
+            statusDisplay.textContent = `You already chose: ${choice.toUpperCase()}. Wait for the reset.`;
+        }
+    </script>
 </body>
 </html>
